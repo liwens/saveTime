@@ -8,6 +8,7 @@
     </transition>
 
     <div class="background" ref="bg"></div>
+    <i ><a href="https://github.com/Lijinwen1994/saveTime"><img  class="github" src="./common/image/github.png" alt=""></a></i>
   </div>
 </template>
 
@@ -124,6 +125,13 @@
       color: $color-theme;
       font-weight: normal;
       margin-bottom: 25px;
+    }
+    .github{
+      position: absolute;
+      bottom:10px;
+      right:10px;
+      width:40px;
+      height:40px;
     }
   }
   .component-leave-active,
