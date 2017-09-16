@@ -10,7 +10,7 @@
 
 <script>
   import {mapGetters} from 'vuex'
-  import MyTable from 'base/my-table/my-table'
+  import MyTable from '../my-table/my-table'
   export default {
     components: {
       MyTable

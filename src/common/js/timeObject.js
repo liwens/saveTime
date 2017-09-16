@@ -29,7 +29,6 @@ export default class timeObject {
   countDuration() {
     let hasEndTimd = !this[_ObjectIsEmpty](this.endTime);
     if(this.startTime.msfrom1970 > this.endTime.msfrom1970){
-
     }
 
     if (hasEndTimd) {
@@ -46,7 +45,7 @@ export default class timeObject {
     if (Object.keys(this.tag).length === EMPTY) {
       return ('tagNull')
     }
-    if (this._context === '') {
+    if (this.content === '') {
       return ('contentNull')
     }
   }

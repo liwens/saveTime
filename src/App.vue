@@ -39,6 +39,9 @@
       this._getTimeDataListFromLocalStroage()
       this._getTagDatafromLocalStorage()
     },
+    mounted(){
+
+    },
     methods: {
       //获取列表数据
       _getTimeDataListFromLocalStroage() {

@@ -354,8 +354,8 @@
 
 
 <style rel='stylesheet/scss' lang='scss' scoped>
-  @import "../../common/scss/variable.scss";
-  @import "../../common/scss/mixin.scss";
+  @import "../../common/scss/variable";
+  @import "../../common/scss/mixin";
 
   @mixin cell {
     word-wrap: break-word;
