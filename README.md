@@ -19,3 +19,8 @@ npm run build --report
 ```
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+## 预览
+![效果](https://github.com/Lijinwen1994/saveTime/blob/master/src/common/image/time1.gif?raw=true)
+
+[点击查看](http://www.lijinwen.cn/time/)
