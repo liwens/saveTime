@@ -78,8 +78,14 @@
       //对话框点击确认，删除标签
       oncomfirm() {
         if (this.deletetagDom) {
+          console.log(this.deletetagDom)
+          console.log(this.tag)
           let ret = this.tagCopy;
-          ret.splice(this.tag.indexOf(this.deletetagDom), 1);
+          ret.forEach((tag)=> {
+            if(tag.name === this.deletetagDom.name) {
+              ret.splice(ret.indexOf(tag), 1);
+            }
+          })
           this.setTag(ret)
           this.deletetagDom = null;
           this.comfirmVisible = false;
@@ -146,32 +152,6 @@
           }
         })
       },
-//      //获取tag数据
-//      _getTagDatafromLocalStorage() {
-//        let data = []
-//        if (localStorage.getItem(tag)) {
-//          let data = JSON.parse(localStorage.getItem(tag));
-//          this.settag(data)
-//
-//        } else {
-//          let tag = [
-//            {
-//              name: '休息',
-//              type: ''
-//            },
-//            {
-//              name: '工作',
-//              type: ''
-//            },
-//            {
-//              name: '学习',
-//              type: ''
-//            }
-//          ]
-//          localStorage.setItem(tag,JSON.stringify(tag))
-//          this.setSelectTag(tag)
-//        }
-//      },
       ...mapMutations({
         setTag: 'SET_TAG',
         setSelectTag: 'SET_SELECT_TAG'
