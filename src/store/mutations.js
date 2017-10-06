@@ -45,8 +45,8 @@ const matutations = {
   //删除
   [types.SELETE_DATALIST](state, deleteItem){
     let {year, month, day} = deleteItem.startTime
-    let index = state.dataList[year][month][day].indexOf(deleteItem)
-    state.dataList[year][month][day].splice(index,1)
+    let index = state.dataList[year][month][day].indexOf(deleteItem);
+    state.dataList[year][month][day].splice(index,1);
     if(state.dataList[year][month][day].length == 0) {
       delete state.dataList[year][month][day]
     }

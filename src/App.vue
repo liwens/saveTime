@@ -8,7 +8,7 @@
     </transition>
 
     <div class="background" ref="bg"></div>
-    <i ><a href="https://github.com/Lijinwen1994/saveTime"><img  class="github" src="./common/image/github.png" alt=""></a></i>
+    <!--<i ref="githubIcon"><a href="https://github.com/Lijinwen1994/saveTime"><img  class="github" src="./common/image/github.png" alt=""></a></i>-->
   </div>
 </template>
 
@@ -20,15 +20,6 @@
   import timeObject from "./common/js/timeObject";
 
   export default {
-    components: {
-      navComponent
-    },
-    name: 'app',
-    computed: {
-      ...mapGetters([
-        'dataList'
-      ])
-    },
     created() {
 //      localStorage.removeItem(TIME_DATA_LIST)
 //      localStorage.removeItem(TAG)
@@ -40,8 +31,18 @@
       this._getTagDatafromLocalStorage()
     },
     mounted(){
-
+//      this.hideGithub();
     },
+    components: {
+      navComponent
+    },
+    name: 'app',
+    computed: {
+      ...mapGetters([
+        'dataList'
+      ])
+    },
+
     methods: {
       //获取列表数据
       _getTimeDataListFromLocalStroage() {
@@ -86,6 +87,20 @@
       FristDay() {
         let firstDay = new timeObject();
         localStorage.setItem(FRIST_DAY, JSON.stringify(firstDay.getNowTime()))
+      },
+      hideGithub() {
+        let windowHeight =document.body.clientWidth;
+        window.onresize = () => {
+          let documenetHeight = document.body.scrollHeight;
+          if(windowHeight > documenetHeight) {
+            this.$refs.githubIcon.style.display = 'none';
+          }else{
+            this.$refs.githubIcon.style.display = 'block';
+          }
+          console.log(windowHeight)
+          console.log(documenetHeight)
+        }
+
       },
       //设置背景
       _setBackground() {

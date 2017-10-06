@@ -67,4 +67,9 @@ export function timeToString(time) {
   }
 }
 
-
+export function judgeObj(obj) {
+  for(let item in obj) {
+    return true
+  }
+  return false;
+}

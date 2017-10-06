@@ -14,14 +14,17 @@
 </template>
 
 <script>
+  import {bus} from '../../common/js/bus';
 
   export default {
     methods: {
       toList() {
-        this.$router.push('recordlist')
+        this.$router.push('recordlist');
+        bus.$emit('activate');
       },
       toPanel() {
         this.$router.push('/')
+
       },
       toReport() {
         this.$router.push('report')

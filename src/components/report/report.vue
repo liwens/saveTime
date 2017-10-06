@@ -1,4 +1,4 @@
-<script src="../../../dist/static/js/app.a773811f46f99afc3ac7.js"></script>
+
 <template>
   <div class="report">
     <div class="day">从 <span class="highLight">{{firstDay}}</span> 第一次使用开始，过去的 <span class="highLight">{{totalDay}}</span> 天里</div>
@@ -15,6 +15,9 @@
   import {mapGetters} from 'Vuex'
 
   export default {
+    created() {
+      this._firstDay()
+    },
     data() {
       return {
         firstDay: " "
@@ -24,7 +27,6 @@
       totalDay() {
         const day = 864e5;
         let first = JSON.parse(localStorage.getItem(FRIST_DAY));
-        console.log(first)
         let taday = new Date();
         return Math.floor((taday.getTime() - first.msfrom1970) / day)
 
@@ -37,7 +39,6 @@
     methods: {
       _firstDay() {
         let first = JSON.parse(localStorage.getItem(FRIST_DAY));
-        console.log(first)
         this.firstDay = `${first.year} 年 ${first.month} 月 ${first.day}日`
       },
       timeToStringNoDay(time) {
@@ -63,10 +64,8 @@
         }
       }
 
-    },
-    created() {
-      this._firstDay()
     }
+
   }
 </script>
 

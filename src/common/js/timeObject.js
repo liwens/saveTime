@@ -15,7 +15,6 @@ export default class timeObject {
 
   start() {
     this.startTime = this.getNowTime();
-    console.log(this)
     return this.startTime;
   }
 

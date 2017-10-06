@@ -44,6 +44,12 @@
   import {SAME} from 'common/js/config'
 
   export default {
+    mounted() {
+      //初始化tagCopy
+      this.tagCopy = deepClone(this.tag)
+      this.$nextTick(function () {
+      })
+    },
     components: {
       Comfirm
     },
@@ -115,6 +121,15 @@
         if (inputValue == '') {
           return
         }
+        //检查是否有重复标签名
+        if(this.checkRepeat(inputValue)) {
+          this.$message({
+            type: 'warning',
+            message: "标签已存在"
+          })
+          return false;
+        };
+
         let payload = this.tag.concat({
           'name': inputValue,
           'type': '',
@@ -128,6 +143,13 @@
           type: 'success',
           message: '标签添加成功!'
         });
+      },
+      checkRepeat(newTag) {
+        let tagArrs = [];
+        this.tag.forEach((item)=> {
+          tagArrs.push(item.name);
+        })
+        return tagArrs.includes(newTag)
       },
       //选中标签
       onselectTag(tag) {
@@ -157,12 +179,7 @@
         setSelectTag: 'SET_SELECT_TAG'
       })
     },
-    mounted() {
-      //初始化tagCopy
-      this.tagCopy = deepClone(this.tag)
-      this.$nextTick(function () {
-      })
-    },
+
     watch: {
       //监听tanName变化
       tag(value) {

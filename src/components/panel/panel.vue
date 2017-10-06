@@ -105,13 +105,16 @@
   import {isPC} from 'common/js/isPC'
   import timeObject from 'common/js/timeObject'
   import {deepClone, zeroObj} from 'common/js/util'
-  import {TIME_DATA_LIST, START_CACHE} from 'common/js/config'
+  import {TIME_DATA_LIST, START_CACHE,oneSecond, oneMinute, oneHour} from 'common/js/config';
 
   export default {
+    created() {
+      this._setCircleSize();
+      this._onresize();
+      this.recoveryStartCache();
+    },
     mounted() {
       this.timeData = new timeObject();
-      this._preset();
-//      localStorage.removeItem(START_CACHE)
     },
     components: {
       ProcessCircle,
@@ -172,7 +175,7 @@
           localStorage.setItem(START_CACHE, JSON.stringify(nowTime))
         }
         this.isStart = true;
-        this._timepiece(nowTime.source.getTime())
+        this._timepiece(nowTime.source.getTime());
         this.editStartTime = this.timeData.startTime.hour + ":" + this.timeData.startTime.minute;
       },
       end() {
@@ -186,9 +189,9 @@
           return
         }
         this.timeData.end();
-        this.isStart = false
+        this.isStart = false;
         //清除定时器
-        window.clearInterval(this.timer)
+        window.clearInterval(this.timer);
         this.editEndTime = this.timeData.endTime.hour + ":" + this.timeData.endTime.minute;
         this.timer = null
       },
@@ -197,8 +200,7 @@
         zeroObj(this.runTimeData)
         //数据保存到DataList
         this.setDataList(deepClone(this.timeData));
-        console.log(this.timeData)
-        this.$message('保存成功')
+        this.$message('保存成功');
         this.content = '';
         this._saveTagTotalMS();
 
@@ -212,21 +214,7 @@
             item.totalMs += this.timeData.durationMs;
           }
         })
-        console.log(tag)
         this.setTag(tag);
-      },
-      //预设列表数据
-      _preset() {
-        if (localStorage.getItem(TIME_DATA_LIST) == null) {
-          this.timeData.start();
-          this.timeData.setContent("第一次使用时间去哪了！");
-          this.timeData.tag = {
-            name: '学习',
-            type: ''
-          }
-          this.timeData.end();
-          this.setDataList(deepClone(this.timeData));
-        }
       },
       cancel() {
         zeroObj(this.runTimeData)
@@ -253,9 +241,17 @@
       _timepiece(optionDate) {
         this.timer = setInterval(() => {
           let newDate = new Date()
-          //现在毫秒数 - 传入的毫秒数
-          this.durationMS = Math.floor((newDate.getTime() - optionDate) / 1000)
+          //持续毫秒数 = 现在毫秒数 - 传入的毫秒数
+          this.durationMS = Math.floor((newDate.getTime() - optionDate));
+          //计算圆环时间
+          this.setRunTime();
         }, 1000)
+      },
+      setRunTime() {
+        let val = this.durationMS;
+        this.runTimeData.second = Math.floor(val % oneHour % oneMinute / oneSecond);
+        this.runTimeData.minute =  Math.floor(val % oneHour / oneMinute);
+        this.runTimeData.hour =  Math.floor(val / oneHour);
       },
       //设置圆环大小
       _setCircleSize() {
@@ -295,7 +291,7 @@
           }
           //不要了
           else {
-            localStorage.removeItem(START_CACHE)
+            localStorage.removeItem(START_CACHE);
             this.comfirmVisible = false;
             this.$message({
               type: "success",
@@ -308,12 +304,13 @@
       //恢复未完成记录时计算运行时间的小时和分钟
       _countTimetoRunTimeData(optionDate) {
         let minute = 60;
-        let hour = minute * 60
-        let duration = Math.floor((Date.now() - optionDate) / 1000)
+        let hour = minute * 60;
+        let duration = Math.floor((Date.now() - optionDate) / 1000);
         console.log(duration)
         this.runTimeData.hour = Math.floor(duration / hour);
         this.runTimeData.minute = Math.floor(duration % hour / minute);
       },
+      //窗口大小被改变，重新计算圆环大小
       _onresize() {
         window.onresize = () => {
           this._setCircleSize()
@@ -371,38 +368,14 @@
         this.runTimeData.minute = Math.floor(ms % hour / minute);
         this.runTimeData.second = Math.floor(ms % hour % minute / second);
       },
+
       ...mapMutations({
         setDataList: 'SET_DATALIST',
         setTag: 'SET_TAG'
       })
     },
-    created() {
 
-      this._setCircleSize()
-      this._onresize()
-
-      this.recoveryStartCache()
-    },
     watch: {
-      durationMS(val) {
-        //设置秒
-        if (val < 60) {
-          this.runTimeData.second = val
-        } else {
-          this.runTimeData.second = val % 60
-        }
-        //设置分
-        if (val % 60 == 0) {
-          this.runTimeData.minute += 1
-        }
-      },
-      ['runTimeData.minute'](val) {
-        //设置小时
-        if (val % 60 == 0 && val != 0) {
-          this.runTimeData.minute = 0
-          this.runTimeData.hour += 1
-        }
-      },
       //保存标签到对象中
       selectTag(tag) {
         this.timeData.setTag(tag);

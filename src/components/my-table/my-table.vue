@@ -78,6 +78,7 @@
 
     <el-button @click="sta" v-if="toggle" class="toggle" size="small" type="info">今日统计</el-button>
     <el-button @click="sta" v-else class="toggle" size="small"  type="success">返回列表</el-button>
+    <button @click="sss">输出</button>
     <div class="page">
       <el-pagination
         layout="prev, pager, next"
@@ -95,11 +96,20 @@
 
 <script>
   import {mapGetters, mapMutations} from 'vuex'
-  import {max, min, format, deepClone, timeToString} from 'common/js/util'
+  import {max, min, format, deepClone, timeToString, judgeObj} from 'common/js/util'
   import {isPC} from 'common/js/isPC'
   import {TIME_DATA_LIST} from 'common/js/config'
-
+  import {bus} from "../../common/js/bus"
   export default {
+    created() {
+      this.selectedDate = new Date();
+      this._dataScope();
+      this._fittingPageSize();
+      this.toggle = true
+      bus.$on('activate', ()=> {
+        this._updateShowData();
+      })
+    },
     data() {
       return {
         selectedDate: "",
@@ -145,16 +155,63 @@
         toggle: true
       }
     },
-    props: {},
-    created() {
-      this.selectedDate = new Date();
-      this._dataScope()
-      this._fittingPageSize()
-      this._updateShowData();
-      this.toggle = true
+    computed: {
+      //数组下标
+      sub() {
+        return this.currentPage - 1
+      },
+      ...mapGetters([
+        'dataList',
+        "tag"
+      ])
     },
+    watch: {
+      //日期切换时更新相应显示数据
+      selectedDate(value) {
+        this._updateShowData(value)
+      },
 
+      //数据源更新时，更新显示数据
+      dataList: {
+        handler: function (value) {
+          this.toggle = true;
+        },
+        deep: true
+      }
+    },
     methods: {
+      sss() {
+        console.log(this.dataList);
+      },
+      //更新显示数据，接受参数：选择的时间戳，可选，如果不选，就用this.selectedDate
+      _updateShowData(selectedDate) {
+        selectedDate = selectedDate ? selectedDate : this.selectedDate;
+        let [year, month, day] = [selectedDate.getFullYear(), format(selectedDate.getMonth() + 1), format(selectedDate.getDate())];
+        this.showData.length = 0;
+        console.log('data数据')
+        console.log(this.dataList[year][month])
+        //获取对应日期数据，并建立分页数组
+        if (this.dataList[year][month][day] !== undefined) {
+          //过渡的数组
+          let temArr = []
+
+          this.total = this.dataList[year][month][day].length;
+          this.dataList[year][month][day].forEach((item, index) => {
+            //数据推入过渡数组
+            temArr.push(item)
+            if ((index + 1) % this.pageSize == 0) {
+              //深拷贝过渡数组，推入showData
+              this.showData.push(deepClone(temArr))
+              temArr.length = 0;
+            }
+          })
+          //把过渡数组中剩余的数据推入showData
+          if (temArr.length) {
+            this.showData.push(temArr)
+          }
+        }
+      },
+
       //统计
       sta() {
         if (this.toggle) {
@@ -198,11 +255,17 @@
           yearArr.push(Number(year))
           for (let month in this.dataList[year]) {
             monthArr.push(Number(month))
+            //判断是否为空
+           if(!judgeObj(this.dataList[year][month])) {
+              return;
+           }
             for (let day in this.dataList[year][month]) {
               dayArr.push(Number(day))
             }
           }
         }
+
+
         //最早的数据日期
         this.earliest.setFullYear(min(yearArr), min(monthArr) - 1, min(dayArr))
         this.earliest.setHours(0, 0, 0, 0);
@@ -229,41 +292,18 @@
         this._updateShowData();
       },
 
-      //更新显示数据，接受参数：选择的时间戳，可选，如果不选，就用this.selectedDate
-      _updateShowData(selectedDate) {
-        selectedDate = selectedDate ? selectedDate : this.selectedDate;
-        let [year, month, day] = [selectedDate.getFullYear(), format(selectedDate.getMonth() + 1), format(selectedDate.getDate())];
-        this.showData.length = 0;
-        //获取对应日期数据，并建立分页数组
-        if (this.dataList[year][month][day] !== undefined) {
-          //过渡的数组
-          let temArr = []
-
-          this.total = this.dataList[year][month][day].length;
-          this.dataList[year][month][day].forEach((item, index) => {
-            //数据推入过渡数组
-            temArr.push(item)
-            if ((index + 1) % this.pageSize == 0) {
-              //深拷贝过渡数组，推入showData
-              this.showData.push(deepClone(temArr))
-              temArr.length = 0;
-            }
-          })
-          //把过渡数组中剩余的数据推入showData
-          if (temArr.length) {
-            this.showData.push(temArr)
-          }
-        }
-      },
       currentChange(nowPage) {
         this.currentPage = nowPage;
       },
       deleteData(data) {
-        console.log(data)
         this._cutTagTotalMS(data)
         this.deleteDataList(data)
-        this._dataScope()
+        this._dataScope();
+        this.$nextTick(() => {
+          this._updateShowData();
+        })
       },
+      //删除对应标签的累积时间。
       _cutTagTotalMS(data) {
         let tag = deepClone(this.tag);
         tag.forEach((item) => {
@@ -271,7 +311,6 @@
             item.totalMs -= data.durationMs;
           }
         })
-        console.log(tag)
         this.setTag(tag);
       },
       _fittingPageSize() {
@@ -321,34 +360,9 @@
         deleteDataList: 'SELETE_DATALIST',
         setTag: 'SET_TAG'
       })
-    },
-    computed: {
-      //数组下标
-      sub() {
-        return this.currentPage - 1
-      },
-      ...mapGetters([
-        'dataList',
-        "tag"
-      ])
-    },
-    watch: {
-      //日期切换时更新相应显示数据
-      selectedDate(value) {
-        this._updateShowData(value)
-
-      },
-
-      //数据源更新时，更新显示数据
-      dataList: {
-        handler: function (value) {
-          this.toggle = true;
-          console.log('matable 监听触发')
-          this._updateShowData()
-        },
-        deep: true
-      }
     }
+
+
   }
 </script>
 
